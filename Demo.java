@@ -13,7 +13,7 @@ public class Demo {
         TrouserTech tt = new TrouserTech(3.1, 0.95, 4.2, 2.8, 5.0, 4.0, 2, 1, true, false, false);
         
         // test the static function change_needle
-        ArrayList<int[]> temp = TrouserTech.change_needle(37, 11.3, 2.5, 1);
+        ArrayList<int[]> temp = TrouserTech.change_needle(37, 2.5, 11.3, 1);
         for (int[] elem: temp) {
             System.out.println(Arrays.toString(elem));
         }

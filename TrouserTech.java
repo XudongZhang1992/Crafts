@@ -64,13 +64,16 @@ public class TrouserTech {
      * Input is (totalRotations, numNeedlesStart, numNeedlesEnd, +/-step). All are positive.
      * And step can only be 1 or 2 due to craft reason.
      * 
-     * Output is (rotations, numAddingNeedles, stages). For example:
+     * Output is (rotations, numAddingNeedles, stages). For example: input (37, 2.5, 11.3, 1).
      * [4, -1, 8]    
-     * [5, -1, 0]
-     * [5, 0, 1]
+     * [5, -1, 1]
      * 
      * [4, -1, 8] reads as "4 rotations with current needles, THEN subtract 1 needle. The
-     * process repeats 8 times."
+     * process repeats 8 times." 
+     * 
+     * Note that after the last stage ([5, -1, 1] in this case), no +/- needles needed as
+     * it's been the end of the process, even if it says -1 needle.
+     * 
      * 
      * (int, double, double, int) -> ArrayList<int[]>
     */
@@ -99,18 +102,22 @@ public class TrouserTech {
         // only happen when step_needle == 1, and precision really lost
         // cannot perform on step_needle == 2 as that needs to handle the exact division issue 
         if (step_needle == 1 && (start_int != start_needle || end_int != end_needle)) {
-            if ((start_needle - start_int) - (end_needle - end_int) >= 0) {
+            if ((start_needle - start_int) - (end_needle - end_int) > 0) {
                 ++start_int;
-            } else {
+            } else if ((start_needle - start_int) - (end_needle - end_int) < 0) {
                 ++end_int;
+            } else {
+                // when the decimal parts are equal
+                if (addingNeedle) ++end_int;
+                else ++start_int;
             }
         }
         
         // whether I can exactly divide needles by step_needle
-        boolean noRamainder = ((end_int - start_int) % step_needle) == 0;
+        boolean noRemainder = ((end_int - start_int) % step_needle) == 0;
         // when remider found (and == 1), increment the one with larger decimal part
         // so that we can exactly divide
-        if (!noRamainder) {
+        if (!noRemainder) {
             if ((start_needle - start_int) - (end_needle - end_int) >= 0) {
                 ++start_int;
             } else {
@@ -122,12 +129,16 @@ public class TrouserTech {
         int numStage = Math.abs(end_int - start_int) / step_needle + 1;
         int rotation1 = (int) (rotations / numStage);
         int numStage1 = numStage - (int) (rotations % numStage);
+
+        // meaningless when (rotations % numStage) == 0
         int rotation2 = rotation1 + 1;
-        int numStage2 = numStage - numStage1 - 1;
+        int numStage2 = numStage - numStage1;
 
         res.add(new int[]{rotation1, addingNeedle? step_needle: step_needle * (-1), numStage1});
-        res.add(new int[]{rotation2, addingNeedle? step_needle: step_needle * (-1), numStage2});
-        res.add(new int[]{rotation2, 0, 1}); // after this last stage, no + or - needles needed
+        // if the remainder == 0, no need to perform rotation2
+        if ((rotations % numStage) != 0) {
+            res.add(new int[]{rotation2, addingNeedle? step_needle: step_needle * (-1), numStage2});
+        }
 
         return res;
     }
