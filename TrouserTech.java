@@ -5,11 +5,11 @@
  * 
  * Created by Xudong Zhang and Ran Cui on 2017/12/13.
 */
+import java.lang.IllegalArgumentException;
 
 public class TrouserTech {
     // some fixed length in "cun"
     public static final double WAIST_LENGTH = 1.0;
-    public static final double CHA_LENGTH = 1.5;
 
     // num of needles to add when making crotch, depending on gender
     public static final int MALE_ADD_NEEDLE = 4;
@@ -26,24 +26,30 @@ public class TrouserTech {
     private double rhoRotation; // how many rotations == 1 "cun"?
     private double rhoNeedle; // how many needles == 1 "cun"?
 
-    // TODO: comment the mapping of int and words
-    private int machineType; // 1:    2:     
-    private int footType; // 1:    2:    3:    
+    private int machineType; // 1: "six" 2: "seven" 3: "nine" 4: "twelve"
+    private int footType; // 1: "huo kou" 2: "1*1" 3: "2*1"    
 
     private boolean addElastic;
     private boolean isMale;
     private boolean isBellyIn;
 
     public TrouserTech(double length_, double crotch_, double foot_, double ass_,
-                       double rhoR, double rhoN, int machineT, int footT, 
+                       double sampleL, double sampleW, int machineT, int footT, 
                        boolean addE, boolean isM, boolean isBI) {
+        if (machineT < 1 || machineT > 4 || footT < 1 || footT > 3) {
+            throw new IllegalArgumentException("No corresponding type code!");
+        }
+
         // length, crotch and ass are in "chi", hence * 10
         this.length = length_ * 10;
         this.crotch = crotch_ * 10;
         this.foot = foot_;
         this.ass = ass_ * 10;
-        this.rhoRotation = rhoR;
-        this.rhoNeedle = rhoN;
+
+        // a sample is made with 100 rorations * 50 needles
+        this.rhoRotation = 100 / sampleL;
+        this.rhoNeedle = 50 / sampleW;
+
         this.machineType = machineT;
         this.footType = footT;
         this.addElastic = addE;

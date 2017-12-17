@@ -7,7 +7,7 @@
 
 public class Demo {
     public static void main(String[] args) {
-        TrouserTech tt = new TrouserTech(10, 9, 8, 7, 1.3, 2.2, 1, 1, false, false, false);
+        TrouserTech tt = new TrouserTech(3.1, 0.95, 4.2, 2.8, 5.0, 4.0, 2, 1, true, false, false);
         System.out.format("New TrousersTech object created.%nLength is: %.3f%n", tt.getLength());
     }
 }
