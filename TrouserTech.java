@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class TrouserTech {
     // some fixed length in "cun"
     public static final double WAIST_LENGTH = 1.0;
-
+    
     // num of needles to add when making crotch, depending on gender
     public static final int MALE_ADD_NEEDLE = 4;
     public static final int FEMALE_ADD_NEEDLE = 6;
@@ -58,17 +58,34 @@ public class TrouserTech {
         this.isBellyIn = isBI;
     }
 
-    /* This function is the general version of calculating craft parameters.
+    /* This function is the general version of calculating craft parameters, when varying
+     * needles number involved. It helps calculating how needles are added or subtracted.
      * 
+     * Input is (totalRotations, numNeedlesStart, numNeedlesEnd, +/-step). All are positive.
+     * And step can only be 1 or 2 due to craft reason.
+     * 
+     * Output is (rotations, numAddingNeedles, stages). For example:
+     * [4, -1, 8]    
+     * [5, -1, 0]
+     * [5, 0, 1]
+     * 
+     * [4, -1, 8] reads as "4 rotations with current needles, THEN subtract 1 needle. The
+     * process repeats 8 times."
+     * 
+     * (int, double, double, int) -> ArrayList<int[]>
     */
     public static ArrayList<int[]> change_needle(int rotations, 
             double start_needle, double end_needle, int step_needle) {
-        // arguments are all positive, and step_needle should be 1 or 2
+
+        // step_needle should be 1 or 2
         if (step_needle != 1 && step_needle != 2) {
             throw new IllegalArgumentException("Needle step can only be 1 or 2!");
         }
+        if (rotations <= 0 || start_needle < 0 || end_needle < 0) {
+            throw new IllegalArgumentException("Parameters should be positive!");
+        }
 
-        // whether I'm + or - needles in this process
+        // whether + or - needles in this process
         boolean addingNeedle = (end_needle - start_needle) > 0;
 
         // the data structure to be returned
@@ -78,8 +95,9 @@ public class TrouserTech {
         int start_int = (int) start_needle;
         int end_int = (int) end_needle;
 
-        // a make-up for the lose of precision
-        // can only perform when step_needle == 1, and precision really lost
+        // a make-up for the lost of precision when converting needles to int
+        // only happen when step_needle == 1, and precision really lost
+        // cannot perform on step_needle == 2 as that needs to handle the exact division issue 
         if (step_needle == 1 && (start_int != start_needle || end_int != end_needle)) {
             if ((start_needle - start_int) - (end_needle - end_int) >= 0) {
                 ++start_int;
@@ -89,10 +107,10 @@ public class TrouserTech {
         }
         
         // whether I can exactly divide needles by step_needle
-        boolean noReminder = ((end_int - start_int) % step_needle) == 0;
+        boolean noRamainder = ((end_int - start_int) % step_needle) == 0;
         // when remider found (and == 1), increment the one with larger decimal part
-        // so that can exactly divide
-        if (!noReminder) {
+        // so that we can exactly divide
+        if (!noRamainder) {
             if ((start_needle - start_int) - (end_needle - end_int) >= 0) {
                 ++start_int;
             } else {
